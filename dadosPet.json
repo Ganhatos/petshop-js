@@ -1,0 +1,48 @@
+{
+    "pets": [
+        {
+            "nome": "Lala",
+            "tipo": "cachorro",
+            "idade": 5,
+            "raca": "Vira-lata",
+            "peso": 3,
+            "tutor": "Doug",
+            "contato": "(81) 98145-7456",
+            "vacinado": false,
+            "servicos": []
+        },
+        {
+            "nome": "Sansão",
+            "tipo": "cachorro",
+            "idade": 5,
+            "raca": "Vira-lata",
+            "peso": 3,
+            "tutor": "Doug",
+            "contato": "(81) 98145-7456",
+            "vacinado": true,
+            "servicos": []
+        },
+        {
+            "nome": "Satanas",
+            "tipo": "gato",
+            "idade": 6,
+            "raca": "Vira-lata",
+            "peso": 3,
+            "tutor": "Bruxa do 71",
+            "contato": "(81) 98541-3214",
+            "vacinado": false,
+            "servicos": []
+        },
+        {
+            "nome": "Cremosinho",
+            "tipo": "cachorro",
+            "idade": 6,
+            "raca": "Snoop",
+            "peso": 12,
+            "tutor": "Alex",
+            "contato": "(81)9 8541-7852",
+            "vacinado": false,
+            "servicos": []
+        }
+    ]
+}
