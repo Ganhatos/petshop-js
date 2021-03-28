@@ -8,7 +8,7 @@
             "peso": 3,
             "tutor": "Doug",
             "contato": "(81) 98145-7456",
-            "vacinado": false,
+            "vacinado": true,
             "servicos": []
         },
         {
