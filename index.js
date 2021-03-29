@@ -1,7 +1,7 @@
 const caminhoBancoDeDados = './dadosPet.json';
-let bancoDeDados = require(caminhoBancoDeDados);
-const moment = require('moment');
 const fs = require('fs');
+let bancoDeDados = JSON.parse(fs.readFileSync(caminhoBancoDeDados, 'utf-8'));
+const  moment = require('moment');
 const prompt = require('prompt-sync')();
 const nomePetshop = "PETSHOP AVANADE";
 let pets = bancoDeDados.pets;
@@ -23,23 +23,23 @@ const indiceDoPet = (nomePet) => {
 const escreverJSON = () => {
     let dadosJS = JSON.stringify(bancoDeDados, null, 4);
 
-    fs.writeFileSync(caminhoBancoDeDados, dadosJS);
+    fs.writeFileSync(caminhoBancoDeDados, dadosJS, 'utf-8');
 }
 
 const listarPets = () => {
+    console.log('--------- Listando Pets --------');
     for (let pet of pets) {
         console.log(`Nome: ${pet.nome} \nIdade: ${pet.idade} \nTipo: ${pet.tipo} \nRaça: ${pet.raca}`);
 
+        console.log('Serviços:');
         for (let servico of pet.servicos) {
             console.log(`${servico.data} - ${servico.nome}`);
         }
 
         pet.vacinado ? console.log(`${pet.nome} está vacinado!`) : console.log(`${pet.nome} NÃO está vacinado!`);
-        console.log('--------------------------------')
+        console.log('--------------------------------');
     }
 }
-
-//listarPets();
 
 const vacinarPet = nomePet => {
     if (validarPet(nomePet)) {
@@ -58,11 +58,11 @@ const vacinarPet = nomePet => {
 const campanhaVacina = () => {
     var soma = 0;
     for (let pet of pets) {
-        if (pet.vacinado == false) {
+        if (pet.vacinado == true) {
             soma ++;
         }
     }
-    console.log(`${soma} foram vacinados!`)
+    console.log(`${soma} Pet(s) vacinado(s)!`);
 }
 
 const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, servicos) => {    
@@ -91,10 +91,10 @@ const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, s
 
 const atenderCliente = (servico, nomePet) => { 
     if (validarPet(nomePet)) {
-        pets[indiceDoPet(nomePet)].servicos.push(JSON.stringify({
+        pets[indiceDoPet(nomePet)].servicos.push(JSON.parse(JSON.stringify({
             nome: servico,
             data: moment().format('DD-MM-YYYY')
-        }));
+        })));
         
         escreverJSON();
 
