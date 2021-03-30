@@ -6,22 +6,19 @@ const prompt = require('prompt-sync')();
 const nomePetshop = "PETSHOP AVANADE";
 let pets = bancoDeDados.pets;
 
-const validarPet = nomePet => {
-    for (const pet of pets) {
-        if (pet.nome == nomePet) return true;
-    }
+const buscarPet = nomePet => {
+    let found = pets.find(el => el.nome == nomePet);
+    return found ? found : console.log(`Nenhum pet encontrado com nome ${nomePet}`);
 }
 
-const buscarPet = nomePet => {
-    if (validarPet(nomePet)) {
-        const found = pets.find(el => el.nome == nomePet);
-        console.log(`${found.nome} \n${found.tipo} \n${found.idade} \n${found.raca} \n${found.peso}`);
-    } else console.log(`${nomePet} não foi encontrado!`);
+const pesquisarPet = nomePet => {
+    if (buscarPet(nomePet) != null) console.log(buscarPet(nomePet));
+    else buscarPet(nomePet);
 }
 
 const filtrarTipoPet = tipoPet => {
-    const especiesFiltradas = pets.filter(pet => pet.tipo == tipoPet);
-    console.log(`${JSON.stringify(especiesFiltradas, null, 2)}`);
+    let especiesFiltradas = pets.filter(pet => pet.tipo == tipoPet);
+    return especiesFiltradas;
 }
 
 const indiceDoPet = nomePet => {
@@ -41,28 +38,31 @@ const escreverJSON = () => {
 const listarPets = () => {
     console.log('--------- Listando Pets --------');
     pets.forEach(pet => {
-        console.log(`Nome: ${pet.nome} \nIdade: ${pet.idade} \nTipo: ${pet.tipo} \nRaça: ${pet.raca}`);
+        let {nome, idade, tipo, raca, servicos, vacinado} = pet;
+
+        console.log(`Nome: ${nome} \nIdade: ${idade} \nTipo: ${tipo} \nRaça: ${raca}`);
 
         console.log('Serviços:');
-        for (let servico of pet.servicos) {
-            console.log(`${servico.data} - ${servico.nome}`);
+        for (let servico of servicos) {
+            let {nome, data} = servico;
+            console.log(`${data} - ${nome}`);
         }
 
-        pet.vacinado ? console.log(`${pet.nome} está vacinado!`) : console.log(`${pet.nome} NÃO está vacinado!`);
+        vacinado ? console.log(`${nome} está vacinado!`) : console.log(`${nome} NÃO está vacinado!`);
         console.log('--------------------------------');
     });
 }
 
 const vacinarPet = nomePet => {
-    if (validarPet(nomePet)) {
-        if (pets[indiceDoPet(nomePet)].vacinado == true) {
-            console.log(`Ops, ${pets[indiceDoPet(nomePet)].nome} já está vacinado!`);        
+    if (buscarPet(nomePet) != null) {
+        if (buscarPet(nomePet).vacinado == true) {
+            console.log(`Ops, ${nomePet} já está vacinado!`);        
         } else {
-            pets[indiceDoPet(nomePet)].vacinado = true;
+            buscarPet(nomePet).vacinado = true;
             escreverJSON();
-            console.log(`${pets[indiceDoPet(nomePet)].nome} foi vacinado com sucesso!`);
+            console.log(`${nomePet} foi vacinado com sucesso!`);
         }     
-    } else console.log(`${nomePet} não foi encontrado!`);
+    } else buscarPet(nomePet);
 }
 
 const campanhaVacina = () => {
@@ -82,7 +82,7 @@ const campanhaVacina = () => {
 }
 
 const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, servicos) => {    
-    if (!validarPet(nome)) {
+    if (buscarPet(nome) == null) {
         let dados = {
             nome: nome,
             tipo: tipo,
@@ -100,43 +100,38 @@ const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, s
         escreverJSON();
         
         console.log(`${dados.nome} foi adicionado(a) com sucesso!`);
-    } else console.log(`${nomePet} já está cadastrado, tente outro nome!`);
+    } else console.log(`${nome} já está cadastrado, tente outro nome!`);
 }
 
 const clientePremium = nomePet => {
-    if (validarPet(nomePet)) {
-        const contadorServicos = pets[indiceDoPet(nomePet)].servicos.map(servico => 1);
+    if (buscarPet(nomePet) == null) {
+        const contadorServicos = pets[indiceDoPet(nomePet)].servicos.length;
 
-        if (contadorServicos != 0) {
-            let numeroDeServicos = contadorServicos.reduce((acumulador, valorAtual) => {
-                return acumulador + valorAtual;
-            });
-
-            switch (numeroDeServicos) {
-                case 1:
-                    console.log(`${nomePet} realizou ${numeroDeServicos} serviço!`);
-                    console.log("Realize mais um serviço para obter 10% de desconto!");
-                    break;
-                case 2:
-                    console.log(`${nomePet} realizou ${numeroDeServicos} serviços!`);
-                    console.log("Parabéns você obteve 10% de desconto!");
-                    break;
-                case 3:
-                    console.log(`${nomePet} realizou ${numeroDeServicos} serviços!`);
-                    console.log("Parabéns, você obteve 20% de desconto!");
-                    break;
-                default:
-                    console.log(`${nomePet} realizou ${numeroDeServicos} serviços!`);
-                    console.log("Parabéns, você obteve 30% de desconto!");
-            }
-        } else {
-            console.log("Gostaria de realizar algum serviço?");
+        switch (contadorServicos) {
+            case 0:
+                console.log("Nenhum serviço encontrado!");
+                break;
+            case 1:
+                console.log(`${nomePet} realizou ${contadorServicos} serviço!`);
+                console.log("Realize mais um serviço para obter 10% de desconto!");
+                break;
+            case 2:
+                console.log(`${nomePet} realizou ${contadorServicos} serviços!`);
+                console.log("Parabéns você obteve 10% de desconto!");
+                break;
+            case 3:
+                console.log(`${nomePet} realizou ${contadorServicos} serviços!`);
+                console.log("Parabéns, você obteve 20% de desconto!");
+                break;
+            default:
+                console.log(`${nomePet} realizou ${contadorServicos} serviços!`);
+                console.log("Parabéns, você obteve 30% de desconto!");
         }
-    } else console.log(`${nomePet} não encontrado!`);
+    } else buscarPet(nomePet);
 }
 
 const atenderCliente = (servico, nomePet) => { 
-    if (validarPet(nomePet)) {
+    if (buscarPet(nomePet) != null) {
         pets[indiceDoPet(nomePet)].servicos.push(JSON.parse(JSON.stringify({
             nome: servico,
             data: moment().format('DD-MM-YYYY')
@@ -157,9 +152,25 @@ const atenderCliente = (servico, nomePet) => {
                 console.log(`${nomePet} está de unhas aparadas!`);
                 break;
         }
-    } else {
-        console.log(`${nomePet} não foi encontrado!`);
-    }
+    } else buscarPet(nomePet);
+}
+
+const contatoTutor = nomePet => {
+    let {nome, tutor, contato} = nomePet;
+
+    return `Tutor: ${tutor} \nContato: ${contato} \nPet: ${nome}`;
+}
+
+const filtrarTutor = nomeTutor => {
+    let petsTutor = pets.filter((pet) => {
+        return pet.tutor == nomeTutor;
+    });
+    
+    console.log(`-- Pets do tutor ${nomeTutor} --`);
+    petsTutor.forEach((pet) => {
+        console.log(`${contatoTutor(pet)}`);
+        console.log('-------------');
+    });
 }
 
 /*var entrada = 9;
@@ -175,6 +186,7 @@ while (entrada != 0) {
     [5] - Atender cliente
     [6] - Verificar se é cliente Premium
     [7] - Buscar pet
+    [8] - Filtrar tutor
     [0] - Sair`);
     
     entrada = prompt('Digite o número do serviço que deseja: ');
@@ -208,6 +220,10 @@ while (entrada != 0) {
     }
     else if (entrada == '7') {
         let nome = prompt('Digite o nome do Pet para consultar: ');
-        buscarPet(nome);
+        pesquisarPet(nome);
+    }
+    else if (entrada == '8') {
+        let nomeTutor = prompt('Digite o nome do tutor para consultar: ');
+        filtrarTutor(nomeTutor);
     } else console.log('Opção inválida, tente novamente!');
 }*/
