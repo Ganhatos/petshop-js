@@ -1,18 +1,30 @@
 const caminhoBancoDeDados = './dadosPet.json';
 const fs = require('fs');
 let bancoDeDados = JSON.parse(fs.readFileSync(caminhoBancoDeDados, 'utf-8'));
-const  moment = require('moment');
+const moment = require('moment');
 const prompt = require('prompt-sync')();
 const nomePetshop = "PETSHOP AVANADE";
 let pets = bancoDeDados.pets;
 
-const validarPet = (nomePet) => {
+const validarPet = nomePet => {
     for (const pet of pets) {
         if (pet.nome == nomePet) return true;
     }
 }
 
-const indiceDoPet = (nomePet) => {
+const buscarPet = nomePet => {
+    if (validarPet(nomePet)) {
+        const found = pets.find(el => el.nome == nomePet);
+        console.log(`${found.nome} \n${found.tipo} \n${found.idade} \n${found.raca} \n${found.peso}`);
+    } else console.log(`${nomePet} não foi encontrado!`);
+}
+
+const filtrarTipoPet = tipoPet => {
+    const especiesFiltradas = pets.filter(pet => pet.tipo == tipoPet);
+    console.log(`${JSON.stringify(especiesFiltradas, null, 2)}`);
+}
+
+const indiceDoPet = nomePet => {
     for (let i = 0; i < pets.length; i++) {
         if (pets[i].nome == nomePet) {
             return i;
@@ -28,7 +40,7 @@ const escreverJSON = () => {
 
 const listarPets = () => {
     console.log('--------- Listando Pets --------');
-    for (let pet of pets) {
+    pets.forEach(pet => {
         console.log(`Nome: ${pet.nome} \nIdade: ${pet.idade} \nTipo: ${pet.tipo} \nRaça: ${pet.raca}`);
 
         console.log('Serviços:');
@@ -38,7 +50,7 @@ const listarPets = () => {
 
         pet.vacinado ? console.log(`${pet.nome} está vacinado!`) : console.log(`${pet.nome} NÃO está vacinado!`);
         console.log('--------------------------------');
-    }
+    });
 }
 
 const vacinarPet = nomePet => {
@@ -50,19 +62,23 @@ const vacinarPet = nomePet => {
             escreverJSON();
             console.log(`${pets[indiceDoPet(nomePet)].nome} foi vacinado com sucesso!`);
         }     
-    } else {
-        console.log(`${nomePet} não foi encontrado!`);
-    }
+    } else console.log(`${nomePet} não foi encontrado!`);
 }
 
 const campanhaVacina = () => {
-    var soma = 0;
-    for (let pet of pets) {
-        if (pet.vacinado == true) {
-            soma ++;
+    console.log("Campanha de vacina");
+
+    let soma = 0;
+    let totalVacinados = 0;
+    pets.map(function () {
+        if (!pets[soma].vacinado) {
+            vacinarPet(pets[soma].nome);
+            totalVacinados++;
         }
-    }
-    console.log(`${soma} Pet(s) vacinado(s)!`);
+        soma++;
+    });
+
+    (totalVacinados == 0) ? console.log("Nenhum pet foi vacinado.") : (totalVacinados == 1) ? console.log(`${totalVacinados} pet foi vacinado!`) : console.log(`${totalVacinados} pets foram vacinados!`);
 }
 
 const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, servicos) => {    
@@ -75,7 +91,7 @@ const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, s
             peso: peso,
             tutor: tutor,
             contato: contato,
-            vacinado: vacinado,
+            vacinado: Boolean(vacinado),
             servicos: servicos
         };
         
@@ -84,9 +100,39 @@ const adicionarPet = (nome, tipo, idade, raca, peso, tutor, contato, vacinado, s
         escreverJSON();
         
         console.log(`${dados.nome} foi adicionado(a) com sucesso!`);
-    } else {
-        console.log(`${nomePet} já está cadastrado, tente outro nome!`);
-    }
+    } else console.log(`${nomePet} já está cadastrado, tente outro nome!`);
+}
+
+const clientePremium = nomePet => {
+    if (validarPet(nomePet)) {
+        const contadorServicos = pets[indiceDoPet(nomePet)].servicos.map(servico => 1);
+
+        if (contadorServicos != 0) {
+            let numeroDeServicos = contadorServicos.reduce((acumulador, valorAtual) => {
+                return acumulador + valorAtual;
+            });
+
+            switch (numeroDeServicos) {
+                case 1:
+                    console.log(`${nomePet} realizou ${numeroDeServicos} serviço!`);
+                    console.log("Realize mais um serviço para obter 10% de desconto!");
+                    break;
+                case 2:
+                    console.log(`${nomePet} realizou ${numeroDeServicos} serviços!`);
+                    console.log("Parabéns você obteve 10% de desconto!");
+                    break;
+                case 3:
+                    console.log(`${nomePet} realizou ${numeroDeServicos} serviços!`);
+                    console.log("Parabéns, você obteve 20% de desconto!");
+                    break;
+                default:
+                    console.log(`${nomePet} realizou ${numeroDeServicos} serviços!`);
+                    console.log("Parabéns, você obteve 30% de desconto!");
+            }
+        } else {
+            console.log("Gostaria de realizar algum serviço?");
+        }
+    } else console.log(`${nomePet} não encontrado!`);
 }
 
 const atenderCliente = (servico, nomePet) => { 
@@ -97,6 +143,8 @@ const atenderCliente = (servico, nomePet) => {
         })));
         
         escreverJSON();
+
+        clientePremium(nomePet);
 
         switch (servico) {
             case 'banho':
@@ -114,7 +162,7 @@ const atenderCliente = (servico, nomePet) => {
     }
 }
 
-var entrada = 9;
+/*var entrada = 9;
 
 while (entrada != 0) {
     console.log(`
@@ -125,6 +173,8 @@ while (entrada != 0) {
     [3] - Saber quandos pets foram vacinados
     [4] - Adicionar pet
     [5] - Atender cliente
+    [6] - Verificar se é cliente Premium
+    [7] - Buscar pet
     [0] - Sair`);
     
     entrada = prompt('Digite o número do serviço que deseja: ');
@@ -151,5 +201,13 @@ while (entrada != 0) {
         let nome = prompt('Digite o nome do Pet: ');
         let servico = prompt('Digite o tipo de serviço: ');
         atenderCliente(servico, nome);
+    }
+    else if (entrada == '6') {
+        let nome = prompt('Digite o nome do Pet: ');
+        clientePremium(nome);
+    }
+    else if (entrada == '7') {
+        let nome = prompt('Digite o nome do Pet para consultar: ');
+        buscarPet(nome);
     } else console.log('Opção inválida, tente novamente!');
-}
+}*/
